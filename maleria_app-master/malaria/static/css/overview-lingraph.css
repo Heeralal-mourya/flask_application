@@ -1,0 +1,100 @@
+.svg-container1 {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 0%; /* depends on svg ratio, for my zebra height/width = 1.2 so padding-bottom = 50% * 1.2 = 60% */
+
+  vertical-align: middle; /* top | middle | bottom ... do what you want */
+}
+
+.svg-container2 {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 0%; /* depends on svg ratio, for my zebra height/width = 1.2 so padding-bottom = 50% * 1.2 = 60% */
+
+  vertical-align: middle; /* top | middle | bottom ... do what you want */
+}
+.svg-container3 {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 0%; /* depends on svg ratio, for my zebra height/width = 1.2 so padding-bottom = 50% * 1.2 = 60% */
+
+  vertical-align: middle; /* top | middle | bottom ... do what you want */
+}
+.svg-container4 {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 0%; /* depends on svg ratio, for my zebra height/width = 1.2 so padding-bottom = 50% * 1.2 = 60% */
+
+  vertical-align: middle; /* top | middle | bottom ... do what you want */
+}
+
+.chart {
+  float: left;
+}
+
+.button-area {
+  padding: 40px 0 0 30px;
+  float: left;
+}
+
+.app-button {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.axis text {
+  font-size: 0.8em;
+}
+
+.axis line {
+  stroke: #000;
+}
+
+.axis path {
+  display: none;
+}
+
+.linecar {
+  fill: none;
+  stroke: url(#line-gradient1);
+  stroke-width: 2px;
+}
+
+.linelcr {
+  fill: none;
+  stroke: url(#line-gradient2);
+  stroke-width: 2px;
+}
+
+.linensfr {
+  fill: none;
+  stroke: url(#line-gradient3);
+  stroke-width: 2px;
+}
+.railwayline {
+  fill: none;
+  stroke: url(#line-gradient4);
+  stroke-width: 2px;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 10px;
+  font: 12px sans-serif;
+  background: #222;
+  color: #fff;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0.9;
+  visibility: hidden;
+}

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <title>Oil and Gas</title>
+
+    <!--js-->
+    <script src="http://colorbrewer2.org/export/colorbrewer.js"></script>
+    <script src="https://d3js.org/d3.v3.min.js"></script>
+    <script src="https://d3js.org/topojson.v1.min.js"></script>
+    <!-- <script src="assets/js/bootstrap.min.js" type="text/javascript"></script> -->
+    <script src = "{{url_for('static', filename='js/jQuery-3.4.1.js')}}" type="text/javascript"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+    <!--js-->
+
+    <!--css-->
+    <style>
+      .canton-boundary {
+        fill: none;
+        stroke: white;
+        stroke-linejoin: round;
+      }
+      text {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 10px;
+        text-anchor: middle;
+      }
+      .pin {
+        color: white;
+      }
+      .d3-tip {
+        line-height: 1;
+        font-weight: bold;
+        padding: 12px;
+        background: white;
+        color: #fff;
+        border-radius: 2px;
+        opacity: 0.001%;
+      }
+      .d3-tip:after {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: white;
+        content: "\25BC";
+        position: absolute;
+        text-align: center;
+        opacity: 0.001%;
+      }
+      .d3-tip.n:after {
+        margin: -1px 0 0 0;
+        top: 100%;
+        left: 0;
+        color: white;
+        opacity: 0.001%;
+      }
+      .area:hover {
+        fill: white;
+      }
+    </style>
+    <link
+      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="{{url_for('static', filename='css/bootstrap.min.css')}}"
+      type="text/css"
+      rel="stylesheet"
+    />
+    <link  href="{{url_for('static', filename='css/style.css')}}" type="text/css" rel="stylesheet" />
+    <link href="{{url_for('static', filename='css/mystyle.css')}}" type="text/css" rel="stylesheet" />
+
+    <link href="{{url_for('static', filename='css/responsive.css')}}" type="text/css" rel="stylesheet" />
+
+    <!--css-->
+    <style>
+      .common-img-slide {
+        width: 100vmin;
+        overflow-x: scroll;
+        position: relative;
+        min-width: 100%;
+      }
+    </style>
+    <script type="text/javascript">
+      function handle_form_submit() {
+
+            if(img_source  == true){
+                var property = document.getElementById("file_upload").files[0]
+                if(property == undefined){
+                    $('#input_image').attr('src', "");
+                    
+                }
+                //var property = document.getElementById("img");
+                console.log(property);
+
+            // Add validation condition for image file 
+
+            //Add condition for url based on disease name
+                const fileType = property['type'];
+                const file_size = property['size'] / 1024 / 1024;
+                console.log("file type : ");
+                console.log(fileType);
+
+                const validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
+                if (!validImageTypes.includes(fileType)) {
+                    console.log("Invalid file uploaded");
+                    
+                    return false;
+                }
+                if (file_size > 10) {
+                    console.log("very large file uploaded");
+                    console.log(file_size);
+                    
+                    return false;
+
+                }
+
+            }
+            else{
+                var property = ""
+            }
+            var form_data = new FormData();
+            
+            img_file_name = document.getElementById('input_image').src
+
+            form_data.append("image_file", property);
+            form_data.append("temp_id", "13990462");
+            form_data.append("upload", img_source);
+            form_data.append("image_file_name", img_file_name);
+            console.log(img_source)
+            
+
+
+              $.ajax({
+                  method: 'POST',
+                  url: "/shipdetect",
+                  data: form_data,
+                  processData: false,
+                  contentType: false,
+                  success: function(response) {
+                    console.log(response);
+		                if(response['status'] == true){
+                      $('#masked_image')
+                          .attr('src', response['ground_truth'])	  
+                      document.getElementById("ship_count").innerHTML = (response['ship_count']);
+		                }
+                  }
+              });
+              return false;
+            }
+
+    </script>
+    <script type="text/javascript">
+        window.img_source = false;
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    $('#input_image')
+                        .attr('src', e.target.result)
+                };
+                const up_fileType = input.files[0]['type'];
+                const up_file_size = input.files[0]['size'] / 1024 / 1024;
+                console.log("file type : ");
+                console.log(up_fileType);
+                const up_validImageTypes = ['image/gif', 'image/jpeg', 'image/png'];
+                if (!up_validImageTypes.includes(up_fileType)) {
+                    console.log("Invalid file uploaded");
+                    document.getElementById('err-msg').innerHTML = "Please upload a valid file";
+                    document.getElementById('input_image').src = "";
+                    return false;
+                }
+                if (up_file_size > 10) {
+                    console.log("very large file uploaded");
+                    console.log(up_file_size);
+                    document.getElementById('err-msg').innerHTML = "Please upload a file smaller than 10 MB";
+                    document.getElementById('input_image').src = "";
+                    return false;
+
+                }
+                img_source = true;
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        function readimg(input) {
+            
+                img_source  = false
+                $('#input_image').attr('src', input.src)
+                
+            }
+        
+      </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <!-- Left Panel -->
+      <aside id="left-panel" class="left-panel">
+        <script>
+          $("#left-panel").load("./side-menu.html");
+        </script>
+      </aside>
+
+      <!-- Left Panel -->
+
+      <!-- Right Panel -->
+      <div class="right-panel" id="right-panel">
+        <!-- Header-->
+
+        <header id="header" class="header common-page-header">
+          <script>
+            $("#header").load("./header.html");
+          </script>
+        </header>
+
+        <!-- /header -->
+
+        <div class="content">
+          <div class="animated fadeIn">
+            <div class="row">
+              <div class="col-lg-12">
+                <!--content section-->
+
+                <div class="card theme-black border-r-10">
+                  <div class="card-body">
+                    <div
+                      class="card common-content-box tabsecondary p-b-0 m-b-0"
+                    >
+                      <div class="card-body common-card">
+                        <div class="default-tab">
+                          <nav>
+                            <div
+                              class="nav nav-tabs nav-tabs-common"
+                              id="nav-tab"
+                              role="tablist"
+                            >
+                              <a
+                                class="nav-item nav-link active"
+                                id="nav-profile-tab"
+                                data-toggle="tab"
+                                href="#map-data"
+                                role="tab"
+                                aria-controls="nav-profile"
+                                aria-selected="false"
+                                >Map Data</a
+                              >
+                              <a
+                                class="nav-item nav-link "
+                                id="nav-home-tab"
+                                data-toggle="tab"
+                                href="#optical"
+                                role="tab"
+                                aria-controls="nav-home"
+                                aria-selected="true"
+                                >Optical</a
+                              >
+                              <a
+                                class="nav-item nav-link"
+                                id="nav-contact-tab"
+                                data-toggle="tab"
+                                href="#sar"
+                                role="tab"
+                                aria-controls="nav-contact"
+                                aria-selected="false"
+                                >Sar</a
+                              >
+                            </div>
+                          </nav>
+                          <div
+                            class="tab-content p-t-20 p-b-0 commmon-tab-content"
+                            id="nav-tabContent"
+                          >
+                            <div
+                              class="tab-pane fade show active map-box"
+                              id="map-data"
+                              role="tabpanel"
+                              aria-labelledby="nav-home-tab"
+                            >
+                              <div class="card colorBlack border-r-10 m-b-0">
+                                <div class="card-body">
+                                  <div class="row">
+                                    <div class="col-md-8">
+                                      <div class="row colorBlack">
+                                        <div class="col-md-12">
+                                          <div
+                                            class="mr-auto text-center block"
+                                          >
+                                            World map
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <button
+                                            class="btn theme-btn1 mr-auto"
+                                            type="submit"
+                                            style="max-width: 400px; width: auto; padding-left: 20px; padding-right: 20px;"
+                                          >
+                                            Analyse satellite data
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <!--left section-->
+                                    <div class="col-md-4">
+                                      <div class="card m-b-0 colorBlack">
+                                        <div
+                                          class="card-body anlaysed-data"
+                                        ></div>
+                                      </div>
+                                    </div>
+                                    <!--right section-->
+                                  </div>
+                                </div>
+                                <!--card body end-->
+                              </div>
+                            </div>
+                            <div
+                              class="tab-pane fade map-box"
+                              id="optical"
+                              role="tabpanel"
+                              aria-labelledby="nav-profile-tab"
+                            >
+                              <div class="card colorNone border-r-10">
+                                <div class="card-body">
+                                  <div class="row">
+                                    <div class="col-md-12">
+                                      <div class="row">
+                                        <div class="col-md-7">
+                                          <div>
+                                            <img
+                                              id = "input_image"
+                                              src="{{url_for('static', filename='ship_count_images/0ba5e5a8a.jpg')}}"
+                                              class="img-fluid rounded bigSlide-img"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                          <div class="row">
+                                            <div class="col-md-12">
+                                              <img
+                                                id = "masked_image"
+                                                src="{{url_for('static', filename='ship_count_images/masks/0ba5e5a8a.jpg')}}"
+                                                class="img-fluid rounded bigSlide-img"
+                                              />
+                                            </div>
+                                          </div>
+                                          <div class="row">
+                                            <div class="col-md-12">
+                                              <div
+                                                class="card m-b-0 colorBlack colorBlack mt-3 rounded"
+                                              >
+                                                <div class="card-body">
+                                                  <h5
+                                                    class="card-title text-white"
+                                                  >
+                                                    Anlaysed Data :
+                                                  </h5>
+                                                  <p
+                                                    class="card-text text-white"
+                                                  >
+                                                    Total No of Vessels : <span id="ship_count" >28</span>
+                                                  </p>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <!--sliderr-->
+                                          <div class="position-relative">
+                                            <span
+                                              class="nextbtn1 position-absolute slideCtrl"
+                                              >&nbsp;</span
+                                            >
+                                            <span
+                                              class="prevbtn1 position-absolute slideCtrl"
+                                              >&nbsp;</span
+                                            >
+                                            <div class="common-img-slide">
+                                              <div class="common-slide-item">
+                                                <div>
+                                                  <img
+
+                                                    src="{{url_for('static', filename='ship_count_images/04a2c262a.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/0ba5e5a8a.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/0ba729545.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/0368beab8.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/0445b541d.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/01873dc60.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/02766c52b.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/056808b7d.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/0277825a8.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/0a1a7f395.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="{{url_for('static', filename='ship_count_images/0e79e9286.jpg')}}"
+                                                    class="smallSlide-img rounded"
+                                                    onclick="readimg(this);"
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <!--end sliderr-->
+                                        </div>
+                                      </div>
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <input type="file" class="btn theme-btn1  float-left" id='file_upload' value="Upload"name="upload", onchange="readURL(this);">
+                                            
+                                          
+                                          <button
+                                            class="btn theme-btn1  float-right"
+                                            type="submit" onclick="handle_form_submit();"
+                                          >
+                                            Analyse
+                                          </button>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                      </div>
+                                    </div>
+                                    <!--left section-->
+
+                                    <!--right section-->
+                                  </div>
+                                </div>
+                                <!--card end-->
+                              </div>
+                            </div>
+                            <div
+                              class="tab-pane fade map-box"
+                              id="sar"
+                              role="tabpanel"
+                              aria-labelledby="nav-contact-tab"
+                            >
+                              <div class="card colorBlack border-r-10">
+                                <div class="card-body">
+                                  <div class="row">
+                                    <div class="col-md-8">
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <div>
+                                            <img
+                                              src="assets/image/vessel-sar-1.png"
+                                              class="img-fluid rounded bigSlide-img"
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <!--sliderr-->
+                                          <div class="position-relative">
+                                            <span
+                                              class="nextbtn1 position-absolute slideCtrl"
+                                              >&nbsp;</span
+                                            >
+                                            <span
+                                              class="prevbtn1 position-absolute slideCtrl"
+                                              >&nbsp;</span
+                                            >
+                                            <div class="common-img-slide">
+                                              <div class="common-slide-item">
+                                                <div>
+                                                  <img
+                                                    src="assets/image/vessel-sar-1.png"
+                                                    class="smallSlide-img rounded"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="assets/image/vessel-sar-1.png"
+                                                    class="smallSlide-img rounded"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="assets/image/vessel-sar-1.png"
+                                                    class="smallSlide-img rounded"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="assets/image/vessel-sar-1.png"
+                                                    class="smallSlide-img rounded"
+                                                  />
+                                                </div>
+                                                <div>
+                                                  <img
+                                                    src="assets/image/vessel-sar-1.png"
+                                                    class="smallSlide-img rounded"
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <!--end sliderr-->
+                                        </div>
+                                      </div>
+                                      <div class="row">
+                                        <div class="col-md-12">
+                                          <input type="file" class="btn theme-btn1  float-left"  value="Upload"name="upload", onchange="readURL(this);">
+                                          <!-- <button
+                                            class="btn theme-btn1  float-left"
+                                            type="submit"
+                                          >
+                                            Upload
+                                          </button> -->
+                                          <button
+                                            class="btn theme-btn1  float-right"
+                                            type="submit"
+                                          >
+                                            Analyse
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <!--left section-->
+                                    <div class="col-md-4">
+                                      <div class="card m-b-0 colorBlack">
+                                        <div class="card-body anlaysed-data">
+                                          <h5 class="card-title text-white">
+                                            Anlaysed Data :
+                                          </h5>
+                                          <p class="card-text text-white">
+                                            Total No of Vessels : 28
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Tankers : 4
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Warships : 12
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Yacht : 2
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Fishing : 6
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Containers : 4
+                                          </p>
+                                          <p
+                                            class="card-text text-white"
+                                            style="margin-top: 50px;"
+                                          >
+                                            Tankers :
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Tank #1 : 24% (32456L)
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Tank #2 : 20% (28756L)
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Tank #3 : 28% (40456L)
+                                          </p>
+                                          <p class="card-text text-white">
+                                            Tank #4 : 34% (51546L)
+                                          </p>
+                                          <h5 class="card-title text-white">
+                                            Total Volume : 2,83,164 Liters
+                                          </h5>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <!--right section-->
+                                  </div>
+                                </div>
+                                <!--card body end-->
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!--end content section-->
+              </div>
+              <!-- /# column -->
+            </div>
+            <!-- /# row -->
+          </div>
+          <!-- .animated -->
+        </div>
+        <!-- .content -->
+      </div>
+
+      <!-- Right Panel -->
+    </div>
+    <!--wrap end-->
+
+    <!-- <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script> -->
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

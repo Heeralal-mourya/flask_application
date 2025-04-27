@@ -1,0 +1,23 @@
+------------------------
+Malaria API 
+------------------------
+
+URL for AJAX call: 
+
+"https://malaria.archeronhealth.com/malariadetect"
+
+INPUT (FormData object): 
+
+temp id as 'temp_id', Image file('blood smear slide image') as 'image_file'.
+
+USAGE:
+
+The input data should be passed as a FormData object with the temp id and image file specified in the object as 'image_file' and 'temp_id' respectively with an AJAX call to the url: "https://malaria.archeronhealth.com/malariadetect". On receiving the input parameters the module processes the data and returns a JSON with its 'status' signifying if the processing was successful. 
+
+- If 'status' is true, the response JSON has the structure: 
+
+{'temp_id', 'status', 'result', 'output'} where 'temp_id' is the input temp_id and 'output' is the required output
+
+	 
+- If 'status' is false, the response JSON has the structure: 
+ {'temp_id', 'status', 'message'} where 'message' is used for error reporting and 'temp_id' is the input temp_id if any and 0 otherwise
